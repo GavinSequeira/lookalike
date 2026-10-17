@@ -4,8 +4,10 @@ from pathlib import Path
 import json
 from datetime import datetime
 
-app = Flask(__name__)
-CORS(app, origins=["http://localhost:5174"])
+CORS(app, origins=[
+    "http://localhost:5174",
+    "https://lookalike-frontend.onrender.com"
+])
 
 DATA_FILE = Path(__file__).parent / "feedback.jsonl"
 
