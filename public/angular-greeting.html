@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lookalike — AngularJS Greeting</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+<style>body{font:16px Arial,sans-serif;background:#f7f6f2;color:#24241f;margin:0;padding:40px}.card{max-width:620px;margin:30px auto;background:#fffdf8;padding:28px;border:1px solid #ddd8cb}input{padding:12px;border:1px solid #cfcabe;width:min(100%,400px)}small{color:#777}</style></head>
+<body ng-app="lookalikeGreeting"><main class="card" ng-controller="GreetingController"><p>LOOKALIKE / ANGULARJS EXPERIMENT</p><h1>Hello, {{ name || 'there' }}!</h1><label>Your name<br><input ng-model="name" placeholder="Type your name"></label><p>Welcome to Lookalike, {{ name || 'friend' }}.</p><small>Demonstrates ng-controller, ng-model and AngularJS expressions.</small></main>
+<script>angular.module('lookalikeGreeting',[]).controller('GreetingController',function($scope){$scope.name='';});</script></body></html>

@@ -1,0 +1,7 @@
+Do not deploy this bundle directly without local testing.
+1. It changes frontend routes and adds React Router dependency.
+2. It changes backend package dependencies to include Mongoose.
+3. The current frontend feedback page calls the Express /api/feedback endpoint.
+4. Flask is a separate demo service and needs its own deployment if hosted.
+5. The feedback file on Render may not persist without a persistent disk.
+6. Mongoose write endpoints are not protected by authentication; do not expose them publicly until you add auth/admin authorization.
