@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const API = 'https://lookalike-flask-feedback.onrender.com/api';
+const API = 'https://lookalike-api-jici.onrender.com';
 
 function money(n, currency = 'INR') {
   if (n == null || !Number.isFinite(Number(n))) return 'Price not verified';
