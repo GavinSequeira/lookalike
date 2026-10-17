@@ -334,3 +334,358 @@
 .product-card {
   background: rgba(250, 248, 243, 0.86) !important;
 }
+
+/* Added practical pages */
+.main-nav a{display:inline-flex;align-items:center;gap:7px;border:1px solid transparent;background:transparent;padding:10px 11px;font-size:11px;color:#656258}
+.main-nav a:hover,.main-nav a.nav-active{background:#25251f;color:#fff}
+.extra-page{max-width:900px;min-height:65vh;margin:0 auto;padding:70px 7% 90px}
+.extra-page h1{font:500 clamp(36px,5vw,54px)/1.1 'Playfair Display',Georgia,serif;letter-spacing:-1.5px;margin:16px 0}
+.extra-page h2{font:500 26px 'Playfair Display',Georgia,serif}
+.extra-page>p{font-size:14px;line-height:1.8;color:#68665c;max-width:720px}
+.feature-form{display:grid;gap:16px;max-width:560px;margin-top:28px}
+.feature-form label{display:grid;gap:7px;font-size:12px;color:#555349}
+.feature-form input,.feature-form select,.feature-form textarea{width:100%;border:1px solid #d9d6cc;background:#fffdf8;padding:12px;color:#24241f;border-radius:2px}
+.feature-form input:focus,.feature-form select:focus,.feature-form textarea:focus{outline:2px solid #b88a67;outline-offset:1px}
+.feature-form .inline-check{display:flex;align-items:center;gap:8px}
+.feature-form .inline-check input{width:auto}
+.form-message{background:#ece9df;border-left:3px solid #8b765d;padding:12px;font-size:12px;line-height:1.6}
+.form-hint{font-size:11px!important;color:#817d70!important;line-height:1.7}
+.experiment-note{padding:22px;border:1px solid #e1ded4;background:#fbfaf7;margin:20px 0}
+.experiment-note p{font-size:13px;line-height:1.7;color:#6e6b61}
+.demo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media(max-width:900px){.main-nav{flex-wrap:wrap;justify-content:center}.main-nav a{padding:8px;font-size:10px}}
+@media(max-width:600px){.extra-page{padding:45px 6% 65px}.demo-grid{grid-template-columns:1fr}.main-nav a{flex:1;justify-content:center}}
+
+.profile-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: 1px solid var(--border, #dedbd4);
+  border-radius: 999px;
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.2s ease;
+}
+
+.profile-link:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.profile-link.active {
+  font-weight: 700;
+}
+.profile-menu {
+  position: relative;
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 160px;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid #e5e1da;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+}
+
+.profile-dropdown a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #252525;
+  text-decoration: none;
+}
+
+.profile-dropdown a:hover {
+  background: #f4f1eb;
+}
+.about-page {
+  min-height: calc(100vh - 105px);
+  padding: 48px 6vw 64px;
+  background:
+    linear-gradient(rgba(47, 34, 23, 0.48), rgba(47, 34, 23, 0.56)),
+    url('./image1.png') center / cover no-repeat;
+  color: #fffaf2;
+}
+
+.about-hero {
+  width: min(1100px, 100%);
+  margin: 0 auto 30px;
+  color: #fffaf2;
+}
+
+.about-kicker {
+  margin-bottom: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.about-hero h1 {
+  margin: 0 0 18px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(36px, 4.5vw, 64px);
+  font-weight: 400;
+  line-height: 1.1;
+  color: #fffaf2;
+}
+
+.about-intro {
+  max-width: 850px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.8;
+  color: #fffaf2;
+}
+
+.about-card {
+  width: min(1100px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  color: #29251f;
+  background: rgba(255, 251, 244, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 18px;
+  box-shadow: 0 18px 55px rgba(20, 15, 10, 0.2);
+}
+
+.about-card-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 32px;
+  align-items: start;
+}
+
+.about-description h2 {
+  margin: 0 0 14px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: #29251f;
+}
+
+.about-description p,
+.technology-card p,
+.about-credits p {
+  color: #70685f;
+  font-size: 15px;
+  line-height: 1.85;
+}
+
+.technology-card {
+  padding: 22px;
+  border: 1px solid #e3d9cb;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.28);
+}
+
+.technology-card h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+  color: #29251f;
+}
+
+.technology-card p {
+  margin: 0;
+}
+
+.about-credits {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid #e3d9cb;
+}
+
+.about-credits h3 {
+  margin: 0 0 5px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 25px;
+  font-weight: 400;
+  color: #29251f;
+}
+
+.about-credits p {
+  margin: 0 0 8px;
+}
+
+.credit-names {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  color: #70685f;
+  font-size: 13px;
+}
+
+.credit-names span:not(:last-child)::after {
+  content: "·";
+  margin-left: 12px;
+}
+
+@media (max-width: 760px) {
+  .about-page {
+    padding: 32px 18px 44px;
+  }
+
+  .about-card {
+    padding: 22px;
+  }
+
+  .about-card-top {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+
+  .about-hero h1 {
+    font-size: 38px;
+  }
+}
+
+/* Registration and Feedback pages */
+.register-page,
+.feedback-page {
+  min-height: calc(100vh - 105px);
+  padding: 48px 6vw 64px;
+  background:
+  linear-gradient(rgba(47, 34, 23, 0.48), rgba(47, 34, 23, 0.56)),
+  url("./image2.png") center / cover no-repeat;
+}
+
+.register-page .feature-form,
+.feedback-page .feature-form {
+  width: min(650px, 100%);
+  margin: 28px auto 0;
+  padding: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  border-radius: 16px;
+  background: rgba(255, 251, 244, 0.96);
+  box-shadow: 0 18px 50px rgba(20, 15, 10, 0.20);
+}
+
+@media (max-width: 760px) {
+  .register-page,
+  .feedback-page {
+    padding: 32px 18px 44px;
+  }
+
+  .register-page .feature-form,
+  .feedback-page .feature-form {
+    padding: 22px;
+  }
+}
+
+/* Force image2.png to appear behind About, Register and Feedback */
+.about-page,
+.register-page,
+.feedback-page {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+}
+
+.about-page::before,
+.register-page::before,
+.feedback-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(
+      rgba(47, 34, 23, 0.35),
+      rgba(47, 34, 23, 0.45)
+    ),
+    url("./image2.png") center center / cover no-repeat;
+  pointer-events: none;
+}
+
+.about-page,
+.register-page,
+.feedback-page {
+  color: #fffaf2;
+}
+
+.about-page .about-card,
+.register-page .feature-form,
+.feedback-page .feature-form {
+  position: relative;
+  z-index: 1;
+}
+
+/* Feedback page layout refinement */
+.feedback-page {
+  min-height: calc(100vh - 110px);
+  padding: 55px 6vw 70px;
+  background: transparent !important;
+}
+
+.feedback-page > .kicker {
+  margin-bottom: 18px;
+  color: #fffaf2;
+}
+
+.feedback-page > h1 {
+  max-width: 900px;
+  margin: 0 auto 32px;
+  color: #fffaf2;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: clamp(38px, 4.5vw, 58px);
+  font-weight: 500;
+  line-height: 1.12;
+}
+
+.feedback-page > .kicker {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feedback-page .feature-form {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  padding: 32px;
+  border-radius: 18px;
+  background: rgba(255, 251, 244, 0.96);
+  box-shadow: 0 18px 50px rgba(20, 15, 10, 0.2);
+}
+
+@media (max-width: 600px) {
+  .feedback-page {
+    padding: 35px 18px 45px;
+  }
+
+  .feedback-page > h1 {
+    font-size: 34px;
+    margin-bottom: 24px;
+  }
+
+  .feedback-page .feature-form {
+    padding: 22px;
+  }
+}
+.register-page,
+.feedback-page > h1 {
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+.welcome-user {
+  font-size: 13px;
+  font-weight: 600;
+  color: #25251f;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+@media (max-width: 600px) {
+  .welcome-user {
+    font-size: 11px;
+  }
+}
+

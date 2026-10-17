@@ -1,3 +1,4 @@
+import './styles.css';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, NavLink, useNavigate, useLocation } from 'react-router-dom';
