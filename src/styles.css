@@ -689,3 +689,30 @@
   }
 }
 
+/* Keep the desktop header content centered */
+@media (min-width: 901px) {
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 28px;
+    padding-left: 6.5%;
+    padding-right: 6.5%;
+  }
+
+  .topbar .wordmark {
+    margin-right: 0;
+  }
+
+  .topbar .main-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .topbar .db-status {
+    margin-left: auto;
+  }
+}
+
