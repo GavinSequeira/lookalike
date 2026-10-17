@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import './styles.css';
 
-const API = 'http://localhost:5000/api';
+const API = 'https://lookalike-232w.onrender.com/api';
 
 function money(n, currency = 'INR') {
   if (n == null || !Number.isFinite(Number(n))) return 'Price not verified';
