@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Search, ArrowUpRight, ExternalLink, ShieldCheck,
-  Footprints, Droplets, X, ArrowRight, RefreshCw, Home
+  Footprints, Droplets, X, ArrowRight, RefreshCw, Home,
+  UserRound, MessageSquare, UserPlus
 } from 'lucide-react';
 import './styles.css';
 
-const API = 'https://lookalike-232w.onrender.com/api';
+const API = 'https://lookalike-frontend.onrender.com';
 
 function money(n, currency = 'INR') {
   if (n == null || !Number.isFinite(Number(n))) return 'Price not verified';
@@ -27,8 +29,10 @@ function getImage(product) {
   return product?.imageUrl || '';
 }
 
-function App() {
-  const [page, setPage] = useState('home');
+function StoreApp() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const page = location.pathname === '/' ? 'home' : (['/shoes','/perfumes'].includes(location.pathname) ? 'catalog' : 'other');
   const [category, setCategory] = useState('shoes');
   const [query, setQuery] = useState('');
   const [products, setProducts] = useState([]);
@@ -37,7 +41,40 @@ function App() {
   const [detail, setDetail] = useState(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
 
+useEffect(() => {
+  let cancelled = false;
+
+  async function loadCurrentUser() {
+    try {
+      const response = await fetch(`${API}/auth/me`, {
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        if (!cancelled) setCurrentUser(null);
+        return;
+      }
+
+      const data = await response.json();
+      const user = data.user || data;
+
+      if (!cancelled) {
+        setCurrentUser(user?.name ? user : null);
+      }
+    } catch {
+      if (!cancelled) setCurrentUser(null);
+    }
+  }
+
+  loadCurrentUser();
+
+  return () => {
+    cancelled = true;
+  };
+}, [location.pathname]);
   async function load() {
     setBusy(true);
     setError('');
@@ -71,6 +108,11 @@ function App() {
   }
 
   useEffect(() => {
+    if (location.pathname === '/perfumes') setCategory('perfumes');
+    else if (location.pathname === '/shoes') setCategory('shoes');
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (page !== 'catalog') return;
     const timer = setTimeout(load, 200);
     return () => clearTimeout(timer);
@@ -80,7 +122,7 @@ function App() {
     setCategory(nextCategory);
     setQuery('');
     setSelected(null);
-    setPage('catalog');
+    navigate(nextCategory === 'perfumes' ? '/perfumes' : '/shoes');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -114,15 +156,37 @@ function App() {
   return (
     <div className="app-shell" id="top">
       <header className="topbar">
-        <button className="wordmark wordmark-button" onClick={() => { setPage('home'); setSelected(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+        <button className="wordmark wordmark-button" onClick={() => { navigate('/'); setSelected(null); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
           lookalike<span>®</span>
         </button>
         <nav className="main-nav" aria-label="Main navigation">
-          <button onClick={() => setPage('home')} className={page === 'home' ? 'nav-active' : ''}><Home size={14}/> Home</button>
-          <button onClick={() => browse('shoes')} className={page === 'catalog' && category === 'shoes' ? 'nav-active' : ''}><Footprints size={15}/> Shoes</button>
-          <button onClick={() => browse('perfumes')} className={page === 'catalog' && category === 'perfumes' ? 'nav-active' : ''}><Droplets size={15}/> Perfumes</button>
+          <NavLink to="/" end className={({isActive}) => isActive ? 'nav-active' : ''}><Home size={14}/> Home</NavLink>
+          <NavLink to="/shoes" className={({isActive}) => isActive ? 'nav-active' : ''}><Footprints size={15}/> Shoes</NavLink>
+          <NavLink to="/perfumes" className={({isActive}) => isActive ? 'nav-active' : ''}><Droplets size={15}/> Perfumes</NavLink>
+          <NavLink to="/about" className={({isActive}) => isActive ? 'nav-active' : ''}>About</NavLink>
+          <NavLink to="/feedback" className={({isActive}) => isActive ? 'nav-active' : ''}><MessageSquare size={14}/> Feedback</NavLink>
         </nav>
-        <span className={`db-status ${health}`}><i />{health === 'connected' ? 'MongoDB connected' : health === 'checking' ? 'Database ready when browsing' : 'API offline'}</span>
+        {currentUser && (
+  <div className="welcome-user">
+    Hello, {currentUser.name}!
+  </div>
+)}
+       <div className="profile-menu">
+  <button
+    className="profile-link"
+    onClick={() => setProfileOpen(!profileOpen)}
+  >
+    <UserRound size={17} />
+    <span>Profile</span>
+  </button>
+
+  {profileOpen && (
+    <div className="profile-dropdown">
+      <NavLink to="/login">Login</NavLink>
+      <NavLink to="/register">Registration</NavLink>
+    </div>
+  )}
+</div>
       </header>
 
       {page === 'home' ? (
@@ -145,9 +209,14 @@ function App() {
             </div>
           </section>
         </main>
-      ) : (
+      ) : page === 'other' && location.pathname === '/about' ? <AboutContent navigate={navigate}/> 
+      : page === 'other' && location.pathname === '/register' ? <RegisterContent/>
+      : page === 'other' && location.pathname === '/login' ? <LoginContent/>
+      : page === 'other' && location.pathname === '/feedback' ? <FeedbackContent/>
+      : page === 'other' && location.pathname === '/angular-greeting' ? <AngularGreetingContent/>
+      : page === 'catalog' ? (
         <main className="catalog-page">
-          <div className="catalog-back"><button onClick={() => setPage('home')}><ArrowRight className="back-arrow" size={15}/> Back to home</button><span>LOOKALIKE / {categoryTitle.toUpperCase()}</span></div>
+          <div className="catalog-back"><button onClick={() => navigate('/')}><ArrowRight className="back-arrow" size={15}/> Back to home</button><span>LOOKALIKE / {categoryTitle.toUpperCase()}</span></div>
           <section className="catalog-section">
             <div className="section-top">
               <div>
@@ -188,8 +257,8 @@ function App() {
             </div>}
           </section>
         </main>
-      )}
-
+      )      : null}
+      
       {selected && <div className="modal-backdrop" onMouseDown={e => {if (e.target === e.currentTarget) setSelected(null);}}>
         <section className="modal compact-modal" role="dialog" aria-modal="true" aria-label="Product alternatives">
           <button className="close" onClick={() => setSelected(null)} aria-label="Close"><X size={22}/></button>
@@ -220,5 +289,417 @@ function App() {
     </div>
   );
 }
+
+
+
+function PageFrame({title, eyebrow, children}) {
+  const pageClass = eyebrow.includes('REGISTER')
+    ? 'register-page'
+    : eyebrow.includes('FEEDBACK')
+      ? 'feedback-page'
+      : 'extra-page';
+
+  return (
+    <main className={pageClass}>
+      <div className="kicker muted">{eyebrow}</div>
+      <h1>{title}</h1>
+      {children}
+    </main>
+  );
+}
+
+function AboutContent() {
+  return (
+    <main className="about-page">
+      <section className="about-hero">
+        <div className="about-kicker">ABOUT LOOKALIKE</div>
+        <h1>A smarter way to explore style.</h1>
+        <p className="about-intro">
+          Lookalike helps you compare shoes and fragrances, explore
+          lower-priced alternatives, and find retailer listings in one place.
+        </p>
+      </section>
+
+      <section className="about-card">
+        <div className="about-card-top">
+          <div className="about-description">
+            <h2>About Lookalike</h2>
+            <p>
+              Lookalike is a product comparison platform designed to make
+              fashion and fragrance shopping easier. Browse a curated
+              collection of shoes and perfumes, compare prices across
+              retailers, and discover stylish alternatives that match your
+              taste and budget. Our goal is to help you find the looks you
+              love, without the guesswork.
+            </p>
+          </div>
+
+          <aside className="technology-card">
+            <h3>Project technologies</h3>
+            <p>React, React Router, CSS, Express, Node.js and MongoDB Atlas.</p>
+          </aside>
+        </div>
+
+        <div className="about-credits">
+          <h3>Project by</h3>
+          <p>This project was created as a team effort by:</p>
+          <div className="credit-names">
+            <span>Manasvi Pawar</span>
+            <span>Gavin Sequeira</span>
+            <span>Raza Ansari</span>
+            <span>Sunil Lewis</span>
+          </div>
+        </div>
+      </section>
+    </main>
+  );
+}
+
+
+function RegisterContent() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirm: '',
+  });
+  const [message, setMessage] = useState('');
+  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  async function submit(e) {
+    e.preventDefault();
+    setMessage('');
+
+    if (form.password.length < 8) {
+      setMessage('Password must contain at least 8 characters.');
+      return;
+    }
+
+    if (!/(?=.*[A-Za-z])(?=.*\d)/.test(form.password)) {
+      setMessage('Password must contain a letter and a number.');
+      return;
+    }
+
+    if (form.password !== form.confirm) {
+      setMessage('Passwords do not match.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          password: form.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed.');
+      }
+
+      setMessage('Account created successfully! You are now registered.');
+      setForm({ name: '', email: '', password: '', confirm: '' });
+    } catch (error) {
+      setMessage(
+        `${error.message} Check that the backend is running on port 5000.`
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <PageFrame title="Create your account" eyebrow="LOOKALIKE / REGISTER">
+      <form className="feature-form" onSubmit={submit}>
+        <label>
+          Full name
+          <input
+            required
+            minLength="2"
+            maxLength="100"
+            autoComplete="name"
+            value={form.name}
+            onChange={e => setForm({ ...form, name: e.target.value })}
+          />
+        </label>
+
+        <label>
+          Email address
+          <input
+            required
+            type="email"
+            autoComplete="email"
+            value={form.email}
+            onChange={e => setForm({ ...form, email: e.target.value })}
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            required
+            type={show ? 'text' : 'password'}
+            minLength="8"
+            autoComplete="new-password"
+            value={form.password}
+            onChange={e => setForm({ ...form, password: e.target.value })}
+          />
+        </label>
+
+        <label>
+          Confirm password
+          <input
+            required
+            type={show ? 'text' : 'password'}
+            minLength="8"
+            autoComplete="new-password"
+            value={form.confirm}
+            onChange={e => setForm({ ...form, confirm: e.target.value })}
+          />
+        </label>
+
+        <label className="inline-check">
+          <input
+            type="checkbox"
+            checked={show}
+            onChange={e => setShow(e.target.checked)}
+          />
+          Show passwords
+        </label>
+
+        <button className="primary-link" type="submit" disabled={loading}>
+          {loading ? 'Creating account…' : 'Register'}
+          <ArrowRight size={15} />
+        </button>
+
+        {message && <p className="form-message" role="status">{message}</p>}
+
+        <p className="form-hint">
+          Your password is securely hashed before being stored.
+        </p>
+      </form>
+    </PageFrame>
+  );
+}
+
+function LoginContent() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [status, setStatus] = useState('');
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+  async function submit(e) {
+    e.preventDefault();
+    setStatus('');
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed. Check your email and password.');
+      }
+
+      setStatus('Login successful! Redirecting to the home page...');
+      setTimeout(() => navigate('/'), 1000);
+    } catch (error) {
+      setStatus(error.message || 'Could not connect to the server.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <main className="register-page">
+      <div className="kicker">LOOKALIKE / LOGIN</div>
+      <h1>Welcome back.</h1>
+
+      <form className="feature-form" onSubmit={submit}>
+        <label>
+          Email address
+          <input
+            type="email"
+            required
+            autoComplete="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
+        </label>
+
+        <label>
+          Password
+          <input
+            type="password"
+            required
+            autoComplete="current-password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+        </label>
+
+        <button
+          className="primary-link"
+          type="submit"
+          disabled={loading}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+          <ArrowRight size={15} />
+        </button>
+
+        {status && (
+          <p className="form-message" role="status">
+            {status}
+          </p>
+        )}
+
+        <p className="form-hint">
+          Use the email address and password you chose during registration.
+        </p>
+      </form>
+    </main>
+  );
+}
+
+function FeedbackContent() {
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    rating: '5',
+    comments: ''
+  });
+
+  const [status, setStatus] = useState('');
+
+  async function submit(e) {
+    e.preventDefault();
+    setStatus('Sending...');
+
+    try {
+      const r = await fetch('https://lookalike-flask-feedback.onrender.com/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(form)
+      });
+
+      const d = await r.json();
+
+      if (!r.ok) {
+        throw new Error(d.message || 'Could not save feedback.');
+      }
+
+      setStatus('Thank you! Your feedback was saved by Flask.');
+
+      setForm({
+        name: '',
+        email: '',
+        rating: '5',
+        comments: ''
+      });
+    } catch (err) {
+      setStatus(`Error: ${err.message}. Check that Flask is running.`);
+    }
+  }
+
+  return (
+    <PageFrame
+      title="Tell us what you think"
+      eyebrow="LOOKALIKE / FEEDBACK"
+    >
+      <form className="feature-form" onSubmit={submit}>
+        <label>
+          Name
+          <input
+            required
+            maxLength="100"
+            value={form.name}
+            onChange={e =>
+              setForm({ ...form, name: e.target.value })
+            }
+          />
+        </label>
+
+        <label>
+          Email (optional)
+          <input
+            type="email"
+            maxLength="200"
+            value={form.email}
+            onChange={e =>
+              setForm({ ...form, email: e.target.value })
+            }
+          />
+        </label>
+
+        <label>
+          Rating
+          <select
+            value={form.rating}
+            onChange={e =>
+              setForm({ ...form, rating: e.target.value })
+            }
+          >
+            <option value="5">5 — Excellent</option>
+            <option value="4">4 — Good</option>
+            <option value="3">3 — Okay</option>
+            <option value="2">2 — Needs work</option>
+            <option value="1">1 — Poor</option>
+          </select>
+        </label>
+
+        <label>
+          Comments
+          <textarea
+            required
+            maxLength="2000"
+            rows="5"
+            value={form.comments}
+            onChange={e =>
+              setForm({ ...form, comments: e.target.value })
+            }
+          />
+        </label>
+
+        <button className="primary-link" type="submit">
+          Submit feedback <ArrowRight size={15} />
+        </button>
+
+        {status && (
+          <p className="form-message" role="status">
+            {status}
+          </p>
+        )}
+      </form>
+    </PageFrame>
+  );
+}
+
+function ProductClassContent() {
+ return <PageFrame title="Product inheritance demo" eyebrow="TYPESCRIPT / EXPERIMENT 4"><p>The TypeScript parent class <code>Product</code> provides shared fields. <code>Shoe</code> and <code>Perfume</code> inherit from it.</p><div className="demo-grid">
+ <article className="experiment-note"><span className="eyebrow">SHOE</span><h2>Everyday Sneaker</h2><p>Size: UK 8</p></article><article className="experiment-note"><span className="eyebrow">PERFUME</span><h2>Citrus Eau de Parfum</h2><p>Volume: 50 ml</p></article></div><p className="form-hint">Source: <code>typescript/product-inheritance.ts</code>. Run <code>npm run demo:typescript</code> from the project root.</p></PageFrame>;
+}
+function AngularGreetingContent() {
+ return <PageFrame title="Say hello" eyebrow="ANGULARJS / EXPERIMENT 6"><p>Use this separate AngularJS 1.x page to demonstrate <code>ng-controller</code>, <code>ng-model</code> and expressions.</p><div className="experiment-note"><p>Open the interactive demo:</p><a href="/angular-greeting.html" target="_blank" rel="noreferrer" className="primary-link">Open AngularJS greeting <ExternalLink size={14}/></a></div></PageFrame>;
+}
+
+function App(){ return <BrowserRouter><StoreApp/></BrowserRouter>; }
 
 createRoot(document.getElementById('root')).render(<App />);
