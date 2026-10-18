@@ -716,3 +716,104 @@
   }
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  overflow: auto;
+  background: rgba(23, 23, 19, 0.72);
+}
+
+.compact-modal {
+  position: relative;
+  isolation: isolate;
+  width: min(1050px, 96vw);
+  max-height: 94dvh;
+  overflow: auto;
+  background: #f8f7f2;
+}
+.compact-modal .modal-copy {
+  min-width: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.compact-modal .close {
+  position: absolute;
+  z-index: 10;
+  top: 10px;
+  right: 10px;
+}
+
+/* Catalogue controls */
+.catalog-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+/* Search and sort controls */
+.catalog-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #77756a;
+}
+
+.sort-control select {
+  min-height: 42px;
+  max-width: 100%;
+  padding: 0 12px;
+  border: 1px solid #dedcd3;
+  background: #fbfaf7;
+  color: #25251f;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.sort-control select:focus {
+  outline: 2px solid #b88a67;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .modal-backdrop {
+    padding: 8px;
+  }
+
+  .compact-modal {
+    width: 100%;
+    max-height: 96vh;
+    max-height: 96dvh;
+  }
+
+  .catalog-tools {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .sort-control {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .sort-control select {
+    width: 100%;
+  }
+}
+

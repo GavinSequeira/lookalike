@@ -7,7 +7,6 @@ import {
   Footprints, Droplets, X, ArrowRight, RefreshCw, Home,
   UserRound, MessageSquare, UserPlus
 } from 'lucide-react';
-import './styles.css';
 
 const API = 'https://lookalike-api-jici.onrender.com/api';
 
@@ -36,6 +35,7 @@ function StoreApp() {
   const page = location.pathname === '/' ? 'home' : (['/shoes','/perfumes'].includes(location.pathname) ? 'catalog' : 'other');
   const [category, setCategory] = useState('shoes');
   const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState('name-asc');
   const [products, setProducts] = useState([]);
   const [health, setHealth] = useState('checking');
   const [selected, setSelected] = useState(null);
@@ -153,6 +153,34 @@ useEffect(() => {
     .slice()
     .sort((a, b) => Number(getPrice(a) ?? Infinity) - Number(getPrice(b) ?? Infinity));
   const selectedPrice = getPrice(selected);
+  
+  const sortedProducts = [...products].sort((a, b) => {
+    const nameA = (a.name || '').toLowerCase();
+    const nameB = (b.name || '').toLowerCase();
+    const brandA = (a.brand || '').toLowerCase();
+    const brandB = (b.brand || '').toLowerCase();
+    const priceA = Number(getPrice(a));
+    const priceB = Number(getPrice(b));
+
+    switch (sortBy) {
+      case 'name-desc':
+        return nameB.localeCompare(nameA);
+      case 'price-asc':
+        if (getPrice(a) == null) return 1;
+        if (getPrice(b) == null) return -1;
+        return priceA - priceB;
+      case 'price-desc':
+        if (getPrice(a) == null) return 1;
+        if (getPrice(b) == null) return -1;
+        return priceB - priceA;
+      case 'brand-asc':
+        return brandA.localeCompare(brandB);
+      case 'brand-desc':
+        return brandB.localeCompare(brandA);
+      default:
+        return nameA.localeCompare(nameB);
+    }
+  });
 
   return (
     <div className="app-shell" id="top">
@@ -232,13 +260,41 @@ useEffect(() => {
                 <button className={category === 'shoes' ? 'active' : ''} onClick={() => browse('shoes')}><Footprints size={17}/> Shoes</button>
                 <button className={category === 'perfumes' ? 'active' : ''} onClick={() => browse('perfumes')}><Droplets size={17}/> Perfumes</button>
               </div>
-              <label className="search"><Search size={18}/><input value={query} onChange={e => setQuery(e.target.value)} placeholder={`Search ${categoryTitle.toLowerCase()} or brand…`}/>{query && <button onClick={() => setQuery('')} aria-label="Clear search"><X size={15}/></button>}</label>
+              
+<div className="catalog-tools">
+  <label className="search">
+    <Search size={18} />
+    <input
+      value={query}
+      onChange={e => setQuery(e.target.value)}
+      placeholder={`Search ${categoryTitle.toLowerCase()} or brand…`}
+    />
+    {query && (
+      <button onClick={() => setQuery('')} aria-label="Clear search">
+        <X size={15} />
+      </button>
+    )}
+  </label>
+
+  <label className="sort-control">
+    <span>Sort by</span>
+    <select value={sortBy} onChange={e => setSortBy(e.target.value)}>
+      <option value="name-asc">Name: A–Z</option>
+      <option value="name-desc">Name: Z–A</option>
+      <option value="price-asc">Price: Low to High</option>
+      <option value="price-desc">Price: High to Low</option>
+      <option value="brand-asc">Brand: A–Z</option>
+      <option value="brand-desc">Brand: Z–A</option>
+    </select>
+  </label>
+</div>
+
             </div>
             {error && <div className="connection-panel"><div><strong>Could not load products</strong><p>{error}</p><span>Check that MongoDB and the Express API are running.</span></div><button className="secondary" onClick={load}><RefreshCw size={15}/> Retry</button></div>}
             {!error && busy && <div className="empty-state"><RefreshCw className="spin"/><p>Loading products…</p></div>}
             {!error && !busy && products.length === 0 && <div className="empty-state"><h3>No matching products found</h3><p>Check the MongoDB collection or try another search.</p></div>}
             {!error && !busy && products.length > 0 && <div className="product-grid">
-              {products.map((product, index) => {
+              {sortedProducts.map((product, index) => {
                 const productAlternatives = Array.isArray(product.alternatives) ? product.alternatives : [];
                 const bestAlternative = productAlternatives.filter(a => getPrice(a) != null && (getPrice(product) == null || Number(getPrice(a)) < Number(getPrice(product)))).sort((a,b) => Number(getPrice(a))-Number(getPrice(b)))[0];
                 return <article className="product-card" key={product.slug || product._id || index}>
