@@ -817,3 +817,29 @@
   }
 }
 
+/* AngularJS search integration */
+.angular-search-wrap {
+  flex: 1;
+  min-width: 0;
+}
+
+.angular-search-wrap .search {
+  width: 100%;
+}
+
+.angular-search-feedback {
+  margin: 6px 0 0;
+  color: #77766e;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.angular-search-wrap .search input {
+  flex: 1;
+  min-width: 0;
+}
+
+.angular-search-wrap .search button {
+  flex-shrink: 0;
+}
+

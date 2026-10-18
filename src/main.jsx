@@ -69,13 +69,13 @@ useEffect(() => {
       if (!cancelled) setCurrentUser(null);
     }
   }
-
   loadCurrentUser();
 
   return () => {
     cancelled = true;
   };
-}, [location.pathname]);
+}, []);
+
   async function load() {
     setBusy(true);
     setError('');
@@ -261,20 +261,38 @@ useEffect(() => {
                 <button className={category === 'perfumes' ? 'active' : ''} onClick={() => browse('perfumes')}><Droplets size={17}/> Perfumes</button>
               </div>
               
+
 <div className="catalog-tools">
-  <label className="search">
-    <Search size={18} />
-    <input
-      value={query}
-      onChange={e => setQuery(e.target.value)}
-      placeholder={`Search ${categoryTitle.toLowerCase()} or brand…`}
-    />
-    {query && (
-      <button onClick={() => setQuery('')} aria-label="Clear search">
-        <X size={15} />
-      </button>
-    )}
-  </label>
+  <div
+    id="angular-search-root"
+    className="angular-search-wrap"
+    ng-controller="LookalikeSearchController"
+  >
+    
+<label className="search">
+  <Search size={18} />
+  <input
+    value={query}
+    onChange={e => setQuery(e.target.value)}
+    placeholder={`Search ${categoryTitle.toLowerCase()} or brand…`}
+    aria-label="Search products or brands"
+  />
+  {query && (
+    <button
+      type="button"
+      onClick={() => setQuery('')}
+      aria-label="Clear search"
+    >
+      <X size={15} />
+    </button>
+  )}
+</label>
+
+
+    <p className="angular-search-feedback" aria-live="polite">
+      Searching for: {"Product or Brand"}
+    </p>
+  </div>
 
   <label className="sort-control">
     <span>Sort by</span>
@@ -288,6 +306,7 @@ useEffect(() => {
     </select>
   </label>
 </div>
+
 
             </div>
             {error && <div className="connection-panel"><div><strong>Could not load products</strong><p>{error}</p><span>Check that MongoDB and the Express API are running.</span></div><button className="secondary" onClick={load}><RefreshCw size={15}/> Retry</button></div>}
