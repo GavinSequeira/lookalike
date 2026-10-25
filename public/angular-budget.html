@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en" ng-app="budgetApp">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lookalike — Budget Finder (AngularJS)</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+<style>*{box-sizing:border-box}body{font:16px "DM Sans",Arial,sans-serif;background:transparent;color:#25251f;margin:0;padding:8px}.card{background:#fffdf8;padding:26px;border:1px solid #e4e1d8;border-radius:14px}h1{font:500 30px/1.15 "Playfair Display",Georgia,serif;margin:.2em 0}.kick{font-size:11px;letter-spacing:.16em;color:#817d70;font-weight:700}input,select{padding:11px 12px;border:1px solid #d3cfc3;border-radius:8px;font:inherit;background:#fff;max-width:100%}input:focus,select:focus{outline:2px solid #ba704b;outline-offset:1px}small,.muted{color:#817d70}button{font:inherit;cursor:pointer}
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;margin:18px 0}
+.controls label{display:grid;gap:6px;font-size:13px;font-weight:700}
+.controls input[type=range]{padding:0;accent-color:#ba704b}
+.summary{display:flex;flex-wrap:wrap;gap:10px 24px;background:#f1eee6;border-radius:10px;padding:14px 16px;margin-bottom:16px}
+.summary b{font-size:20px;font-family:"Playfair Display",Georgia,serif}
+.list{display:grid;gap:10px;margin:0;padding:0;list-style:none}
+.item{display:grid;grid-template-columns:56px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid #e4e1d8;border-radius:10px;padding:10px}
+.item img{width:56px;height:56px;object-fit:contain;background:#f4f1ea;border-radius:8px}
+.item .ph{width:56px;height:56px;background:#f4f1ea;border-radius:8px}
+.item strong{display:block}.save{color:#2f7a4d;font-size:13px;font-weight:700}
+.add{border:1px solid #25251f;background:#fff;border-radius:8px;padding:8px 12px}.add.on{background:#25251f;color:#fff}
+.wish{margin-top:16px;border-top:1px solid #e4e1d8;padding-top:14px}
+.msg{padding:12px;border-radius:8px;background:#f3e6d8;margin:12px 0}
+</style></head>
+<body>
+<main class="card" ng-controller="BudgetController as vm">
+  <div class="kick">LOOKALIKE / ANGULARJS</div>
+  <h1>Budget finder</h1>
+  <p class="muted">Slide your budget and see what fits — and what a lookalike saves.</p>
+
+  <div class="controls">
+    <label>Category
+      <select ng-model="category" ng-change="load()"><option value="shoes">Shoes</option><option value="perfumes">Perfumes</option></select></label>
+    <label>Search
+      <input ng-model="search" placeholder="name or brand" autocomplete="off"></label>
+    <label>Sort
+      <select ng-model="sortKey"><option value="price">Price: low to high</option><option value="-price">Price: high to low</option><option value="-saving">Biggest saving</option><option value="name">Name</option></select></label>
+    <label>Budget: {{ budget | currency:'₹':0 }}
+      <input type="range" ng-model="budget" min="0" max="{{ maxPrice }}" step="100"></label>
+  </div>
+
+  <div class="msg" ng-if="loading">Loading the catalogue… the server may take a few seconds to wake up.</div>
+  <div class="msg" ng-if="usingSample && !loading">Couldn't reach the API, so you're seeing sample items.</div>
+
+  <div class="summary" ng-if="!loading">
+    <div><b>{{ visible.length }}</b> of {{ items.length }} items fit</div>
+    <div>Potential saving: <b>{{ totalSaving() | currency:'₹':0 }}</b></div>
+    <div>Budget is {{ budget >= maxPrice ? 'unlimited' : 'capped' }}</div>
+  </div>
+
+  <ul class="list">
+    <li class="item" ng-repeat="p in items | filter:search | filter:withinBudget | orderBy:sortKey as visible">
+      <img ng-if="p.imageUrl" ng-src="{{ p.imageUrl }}" alt="">
+      <div class="ph" ng-if="!p.imageUrl"></div>
+      <div>
+        <strong>{{ p.name }}</strong>
+        <small>{{ p.brand }} · {{ p.price | currency:'₹':0 }}</small>
+        <div class="save" ng-if="p.saving > 0">Lookalike: {{ p.altName }} at {{ p.altPrice | currency:'₹':0 }} — save {{ p.saving | currency:'₹':0 }}</div>
+      </div>
+      <button class="add" ng-class="{on: inWish(p)}" ng-click="toggle(p)">{{ inWish(p) ? 'Added ✓' : 'Add' }}</button>
+    </li>
+  </ul>
+  <p class="muted" ng-if="!loading && visible.length === 0">Nothing fits that budget — try sliding it up.</p>
+
+  <div class="wish" ng-if="wishlist.length">
+    <strong>Your picks ({{ wishlist.length }})</strong> — total {{ wishTotal() | currency:'₹':0 }}
+    <small ng-repeat="w in wishlist"><br>• {{ w.name }}</small>
+  </div>
+</main>
+<script>
+var API = window.LOOKALIKE_API || 'https://lookalike-api-jici.onrender.com/api';
+angular.module('budgetApp', []).controller('BudgetController', ['$scope', '$http', function ($scope, $http) {
+  var SAMPLE = [
+    { name: 'Everyday Sneaker', brand: 'Demo Co', price: 2499, altName: 'Budget Runner', altPrice: 1799 },
+    { name: 'Classic Court Shoe', brand: 'Demo Co', price: 5999, altName: 'Street Court', altPrice: 3299 },
+    { name: 'Citrus Parfum 50ml', brand: 'Demo Co', price: 8999, altName: 'Citrus Dupe', altPrice: 2499 }
+  ];
+  $scope.category = 'shoes'; $scope.search = ''; $scope.sortKey = 'price';
+  $scope.items = []; $scope.visible = []; $scope.wishlist = [];
+  $scope.budget = 0; $scope.maxPrice = 0; $scope.loading = true; $scope.usingSample = false;
+
+  function priceOf(x) { return x && (x.price != null ? x.price : x.currentPriceINR); }
+
+  function shape(p) {
+    var price = priceOf(p), best = null;
+    angular.forEach(p.alternatives || [], function (a) {
+      var ap = priceOf(a);
+      if (ap != null && price != null && ap < price && (!best || ap < best.price)) best = { name: a.name, price: ap };
+    });
+    return { name: p.name, brand: p.brand, price: price, imageUrl: p.imageUrl,
+      altName: p.altName || (best && best.name), altPrice: p.altPrice != null ? p.altPrice : (best && best.price),
+      saving: best ? price - best.price : (p.altPrice != null ? price - p.altPrice : 0) };
+  }
+
+  function use(list) {
+    $scope.items = list.map(shape).filter(function (p) { return p.price != null; });
+    var max = 0; angular.forEach($scope.items, function (p) { if (p.price > max) max = p.price; });
+    $scope.maxPrice = Math.ceil(max / 100) * 100;
+    $scope.budget = $scope.maxPrice;
+  }
+
+  $scope.load = function () {
+    $scope.loading = true; $scope.usingSample = false;
+    $http.get(API + '/products', { params: { category: $scope.category } })
+      .then(function (r) { use(r.data); })
+      .catch(function () { $scope.usingSample = true; use(SAMPLE); })
+      .finally(function () { $scope.loading = false; });
+  };
+
+  $scope.withinBudget = function (p) { return p.price <= $scope.budget; };
+  $scope.totalSaving = function () { return $scope.visible.reduce(function (s, p) { return s + (p.saving || 0); }, 0); };
+  $scope.inWish = function (p) { return $scope.wishlist.indexOf(p) > -1; };
+  $scope.toggle = function (p) { var i = $scope.wishlist.indexOf(p); i > -1 ? $scope.wishlist.splice(i, 1) : $scope.wishlist.push(p); };
+  $scope.wishTotal = function () { return $scope.wishlist.reduce(function (s, p) { return s + p.price; }, 0); };
+
+  $scope.load();
+}]);
+</script></body></html>

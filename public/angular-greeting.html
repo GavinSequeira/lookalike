@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Lookalike — AngularJS Greeting</title>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.3/angular.min.js"></script>
+<style>*{box-sizing:border-box}body{font:16px "DM Sans",Arial,sans-serif;background:transparent;color:#25251f;margin:0;padding:8px}.card{background:#fffdf8;padding:26px;border:1px solid #e4e1d8;border-radius:14px}h1{font:500 30px/1.15 "Playfair Display",Georgia,serif;margin:.2em 0}.kick{font-size:11px;letter-spacing:.16em;color:#817d70;font-weight:700}input,select{padding:11px 12px;border:1px solid #d3cfc3;border-radius:8px;font:inherit;background:#fff;max-width:100%}input:focus,select:focus{outline:2px solid #ba704b;outline-offset:1px}small,.muted{color:#817d70}button{font:inherit;cursor:pointer}
+.big{font:500 44px/1.1 "Playfair Display",Georgia,serif;margin:.3em 0}.big em{color:#ba704b}
+.row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}.chip{border:1px solid #d3cfc3;background:#fff;border-radius:99px;padding:8px 14px}.chip.on{background:#25251f;color:#fff;border-color:#25251f}
+.preview{background:#f1eee6;border-radius:10px;padding:16px;margin-top:12px}
+</style></head>
+<body ng-app="lookalikeGreeting">
+<main class="card" ng-controller="GreetingController">
+  <div class="kick">LOOKALIKE / ANGULARJS</div>
+  <div class="big">{{ greeting }}, <em>{{ name || 'there' }}</em>!</div>
+  <label>Your name<br><input ng-model="name" placeholder="Type your name" autocomplete="off"></label>
+  <div class="row">
+    <button class="chip" ng-repeat="t in tastes" ng-class="{on: taste === t}" ng-click="pick(t)">{{ t }}</button>
+  </div>
+  <div class="preview" ng-if="taste">
+    <strong>{{ name || 'Friend' }}</strong>, since you like <strong>{{ taste | lowercase }}</strong>, try the
+    <a ng-href="/{{ taste === 'Fragrance' ? 'perfumes' : 'shoes' }}" target="_top">{{ taste === 'Fragrance' ? 'perfumes' : 'shoes' }} catalogue</a>.
+    <br><small>Your name has {{ name.length || 0 }} characters.</small>
+  </div>
+  <p><small>Demonstrates ng-app, ng-controller, ng-model, ng-repeat, ng-class, ng-click, ng-if and expressions.</small></p>
+</main>
+<script>
+angular.module('lookalikeGreeting', []).controller('GreetingController', function ($scope) {
+  $scope.name = '';
+  $scope.taste = '';
+  $scope.tastes = ['Sneakers', 'Fragrance'];
+  var h = new Date().getHours();
+  $scope.greeting = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  $scope.pick = function (t) { $scope.taste = $scope.taste === t ? '' : t; };
+});
+</script></body></html>
