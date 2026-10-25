@@ -29,8 +29,12 @@ ORIGINS = [
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     "https://lookalike-frontend.onrender.com",
-] + [o.strip() for o in os.environ.get("FRONTEND_URL", "").split(",") if o.strip()]
-CORS(app, origins=ORIGINS)
+] + [
+    o.strip() 
+    for o in os.environ.get("FRONTEND_URL", "").split(",")
+     if o.strip()
+     ]
+CORS(app, origins=ORIGINS, supports_credentials=True)
 
 DATA_FILE = Path(__file__).parent / "feedback.jsonl"
 EMAIL_RE = re.compile(r"^[^\s@]+@[^\s@]+\.[^\s@]+$")
